@@ -62,6 +62,13 @@ export default {
           glass: "hsl(var(--glass-tint))",
           shadow: "hsl(var(--shadow-lab))",
         },
+        neon: {
+          cyan: "hsl(var(--neon-cyan))",
+          purple: "hsl(var(--neon-purple))",
+          blue: "hsl(var(--neon-blue))",
+          pink: "hsl(var(--neon-pink))",
+        },
+        hologram: "hsl(var(--hologram))",
       },
       borderRadius: {
         lg: "var(--radius)",

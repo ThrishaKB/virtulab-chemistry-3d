@@ -5,18 +5,20 @@ import { Beaker } from "./lab/Beaker";
 import { Flask } from "./lab/Flask";
 import { TestTube } from "./lab/TestTube";
 import { Bottle } from "./lab/Bottle";
+import { HolographicMolecule } from "./lab/HolographicMolecule";
+import { FloatingScreen } from "./lab/FloatingScreen";
 import { Suspense } from "react";
 import { Card } from "./ui/card";
 
 export const ChemistryLab = () => {
   return (
-    <div className="w-full h-screen relative">
+    <div className="w-full h-screen relative bg-gradient-to-br from-background via-background to-primary/5">
       <Canvas
         shadows
         camera={{ position: [0, 5, 8], fov: 50 }}
         gl={{ antialias: true, alpha: true }}
       >
-        <color attach="background" args={["#e8f4f8"]} />
+        <color attach="background" args={["#0f1419"]} />
         
         <Suspense fallback={null}>
           {/* Lighting */}
@@ -49,6 +51,28 @@ export const ChemistryLab = () => {
           <Bottle position={[-2.5, 1.5, -1.5]} color="#ef4444" fillLevel={0.9} />
           <Bottle position={[2.5, 1.5, 1.5]} color="#06b6d4" fillLevel={0.7} />
 
+          {/* Holographic Molecules */}
+          <HolographicMolecule position={[-3, 3, 0]} type="water" />
+          <HolographicMolecule position={[3, 3.5, 0]} type="co2" />
+          <HolographicMolecule position={[0, 3.2, 2]} type="ethanol" />
+
+          {/* Floating Information Screens */}
+          <FloatingScreen
+            position={[-3.5, 2.5, -2]}
+            text="H₂O\nWater Molecule"
+            color="#00ffff"
+          />
+          <FloatingScreen
+            position={[3.5, 2.8, -2]}
+            text="CO₂\nCarbon Dioxide"
+            color="#aa00ff"
+          />
+          <FloatingScreen
+            position={[0, 2.6, -2.5]}
+            text="C₂H₅OH\nEthanol"
+            color="#ff00ff"
+          />
+
           {/* Environment and Controls */}
           <Environment preset="apartment" />
           <ContactShadows
@@ -70,20 +94,20 @@ export const ChemistryLab = () => {
         </Suspense>
       </Canvas>
 
-      {/* UI Overlay */}
-      <Card className="absolute top-4 left-4 p-4 bg-card/90 backdrop-blur-sm border-primary/20">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Virtual Chemistry Lab</h1>
+      {/* UI Overlay with futuristic styling */}
+      <Card className="absolute top-4 left-4 p-4 glass-panel holographic-border">
+        <h1 className="text-2xl font-bold text-glow-cyan mb-2">Virtual Chemistry Lab</h1>
         <div className="space-y-1 text-sm text-muted-foreground">
-          <p>🖱️ <span className="text-foreground">Left click + drag:</span> Rotate view</p>
-          <p>🖱️ <span className="text-foreground">Right click + drag:</span> Pan view</p>
-          <p>🖱️ <span className="text-foreground">Scroll:</span> Zoom in/out</p>
-          <p>🧪 <span className="text-foreground">Click equipment:</span> Interact with items</p>
+          <p>🖱️ <span className="text-primary">Left click + drag:</span> Rotate view</p>
+          <p>🖱️ <span className="text-primary">Right click + drag:</span> Pan view</p>
+          <p>🖱️ <span className="text-primary">Scroll:</span> Zoom in/out</p>
+          <p>🧪 <span className="text-primary">Click equipment:</span> Interact with items</p>
         </div>
       </Card>
 
-      <Card className="absolute bottom-4 left-4 p-3 bg-card/90 backdrop-blur-sm border-accent/20">
-        <p className="text-xs text-muted-foreground">
-          <span className="text-accent font-semibold">Lab Equipment:</span> Beakers • Flasks • Test Tubes • Bottles
+      <Card className="absolute bottom-4 left-4 p-3 glass-panel border-accent/30 glow-purple">
+        <p className="text-xs text-foreground/90">
+          <span className="text-accent font-semibold text-glow-purple">Lab Equipment:</span> Beakers • Flasks • Test Tubes • Bottles
         </p>
       </Card>
     </div>
