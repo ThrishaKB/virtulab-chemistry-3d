@@ -57,6 +57,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        lab: {
+          table: "hsl(var(--lab-table))",
+          glass: "hsl(var(--glass-tint))",
+          shadow: "hsl(var(--shadow-lab))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
