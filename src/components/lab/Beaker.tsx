@@ -18,19 +18,70 @@ interface BeakerProps {
   fillLevel?: number;
 }
 
-export const Beaker = ({ position, color, fillLevel }: BeakerProps) => {
+export const Beaker = ({
+  position,
+  volume = 50,
+  maxVolume = 250,
+  liquidColor = "#4ade80",
+  isDraggable = true,
+  onPourStart,
+  onPourEnd,
+  // Legacy props for backward compatibility
+  color,
+  fillLevel
+}: BeakerProps) => {
   const groupRef = useRef<Group>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [isPouring, setIsPouring] = useState(false);
+  const [currentVolume, setCurrentVolume] = useState(volume);
 
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+  // Backward compatibility: use fillLevel if volume is not provided
+  const normalizedFillLevel = fillLevel !== undefined ? fillLevel : currentVolume / maxVolume;
+
+  const { materials } = usePhysics();
+
+  // Physics body for the beaker (cylinder shape)
+  const [beakerRef, beakerApi] = useCylinder(() => ({
+    mass: isDraggable ? 0.5 : 0, // Lighter mass for easy dragging
+    position,
+    rotation: [0, 0, 0],
+    material: materials.glass,
+    args: [0.4, 0.35, 1, 8], // [radiusTop, radiusBottom, height, numSegments]
+    type: isDraggable ? 'Dynamic' : 'Static',
+  }), null);
+
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    toast.success(`Beaker selected - ${Math.round(fillLevel * 100)}% filled`);
-  };
+    const fillPercentage = Math.round(normalizedFillLevel * 100);
+    toast.success(`Beaker selected - ${fillPercentage}% filled (${currentVolume}mL/${maxVolume}mL)`);
+  }, [normalizedFillLevel, currentVolume, maxVolume]);
+
+  const handlePourStart = useCallback(() => {
+    if (currentVolume > 0 && !isPouring) {
+      setIsPouring(true);
+      onPourStart?.();
+    }
+  }, [currentVolume, isPouring, onPourStart]);
+
+  const handlePourEnd = useCallback((pouredVolume: number) => {
+    setIsPouring(false);
+    const newVolume = Math.max(0, currentVolume - pouredVolume);
+    setCurrentVolume(newVolume);
+    onPourEnd?.(pouredVolume);
+  }, [currentVolume, onPourEnd]);
 
   useFrame(() => {
-    if (groupRef.current && hovered) {
+    if (groupRef.current && hovered && !isDragging) {
       groupRef.current.position.y += Math.sin(Date.now() * 0.003) * 0.002;
+    }
+
+    // Simulate pouring when tilted
+    if (beakerRef.current && isPouring && currentVolume > 0) {
+      const pourRate = 2; // mL per frame
+      if (Math.random() < 0.3) { // Not every frame to make it realistic
+        handlePourEnd(pourRate);
+      }
     }
   });
 
