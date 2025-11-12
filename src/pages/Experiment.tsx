@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { EnhancedLab } from "@/components/EnhancedLab";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import Lab3D from "@/components/Lab3D";
 import { useToast } from "@/hooks/use-toast";
 import { experimentMaterials } from "@/config/experimentMaterials";
+import type { Experiment as ExperimentType } from "@/types/experiment";
 
 interface ExperimentData {
   id: string;
@@ -168,44 +167,43 @@ const Experiment = () => {
     );
   }
 
+  // Convert materials to Experiment type for Lab3D
+  const lab3DExperiment: ExperimentType = {
+    id: experiment.id,
+    title: experiment.title,
+    description: experiment.description,
+    difficulty: experiment.difficulty,
+    duration: experiment.duration,
+    category: experiment.category,
+    steps: materials.steps.map(step => ({
+      instruction: step,
+      chemicals: [],
+      equipment: ['beaker']
+    })),
+    materials: materials.equipment.map(eq => ({
+      equipmentType: eq.type
+    })),
+    chemicals: materials.chemicals.map(chem => ({
+      id: chem.id,
+      name: chem.name,
+      formula: chem.formula,
+      color: chem.color,
+      properties: {
+        state: 'liquid' as const
+      }
+    })),
+    safetyNotes: [
+      'Wear safety goggles at all times',
+      'Handle chemicals with care',
+      'Work in a well-ventilated area'
+    ]
+  };
+
   return (
-    <div className="relative w-full h-screen">
-      <EnhancedLab experimentData={materials} />
-      
-      {/* Top Bar */}
-      <div className="absolute top-4 left-4 z-50 flex items-center gap-3">
-        <Button
-          onClick={() => navigate("/lab")}
-          variant="outline"
-          size="sm"
-          className="glass-panel holographic-border text-foreground hover:glow-cyan"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
-        </Button>
-
-        <Button
-          onClick={markAsComplete}
-          size="sm"
-          className="glow-cyan holographic-border"
-        >
-          <CheckCircle className="w-4 h-4 mr-2" />
-          Complete
-        </Button>
-      </div>
-
-      {/* Environment Info */}
-      <div className="absolute top-4 right-[420px] z-50 glass-panel holographic-border p-3 space-y-1">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>🌡️</span>
-          <span>25°C</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>⏱️</span>
-          <span>0:00</span>
-        </div>
-      </div>
-    </div>
+    <Lab3D 
+      experiment={lab3DExperiment} 
+      onBack={() => navigate("/lab")}
+    />
   );
 };
 
