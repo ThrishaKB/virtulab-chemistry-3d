@@ -20,18 +20,80 @@ interface BottleProps {
   fillLevel?: number;
 }
 
-export const Bottle = ({ position, color, fillLevel }: BottleProps) => {
+export const Bottle = ({
+  position,
+  volume = 100,
+  maxVolume = 250,
+  liquidColor = "#ef4444",
+  isDraggable = true,
+  onPourStart,
+  onPourEnd,
+  chemicalName = "Reagent",
+  concentration = "1M",
+  // Legacy props for backward compatibility
+  color,
+  fillLevel
+}: BottleProps) => {
   const groupRef = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isPouring, setIsPouring] = useState(false);
+  const [isCapOpen, setIsCapOpen] = useState(false);
+  const [currentVolume, setCurrentVolume] = useState(volume);
 
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+  // Backward compatibility: use fillLevel if volume is not provided
+  const normalizedFillLevel = fillLevel !== undefined ? fillLevel : currentVolume / maxVolume;
+
+  const { materials } = usePhysics();
+
+  // Physics body for the bottle
+  const [bottleRef, bottleApi] = useCylinder(() => ({
+    mass: isDraggable ? 0.4 : 0,
+    position,
+    material: materials.glass,
+    args: [0.35, 0.35, 1.4, 8], // [radiusTop, radiusBottom, height, numSegments]
+    type: isDraggable ? 'Dynamic' : 'Static',
+  }), null);
+
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    toast.success(`Reagent Bottle - ${Math.round(fillLevel * 100)}% filled`);
-  };
+    const fillPercentage = Math.round(normalizedFillLevel * 100);
+    toast.success(`${chemicalName} (${concentration}) - ${fillPercentage}% filled (${currentVolume}mL/${maxVolume}mL)`);
+  }, [normalizedFillLevel, currentVolume, maxVolume, chemicalName, concentration]);
+
+  const handleCapClick = useCallback((e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    setIsCapOpen(!isCapOpen);
+    toast.info(`Bottle cap ${isCapOpen ? 'closed' : 'opened'}`);
+  }, [isCapOpen]);
+
+  const handlePourStart = useCallback(() => {
+    if (currentVolume > 0 && !isPouring && isCapOpen) {
+      setIsPouring(true);
+      onPourStart?.();
+    } else if (!isCapOpen) {
+      toast.error("Please open the bottle cap first!");
+    }
+  }, [currentVolume, isPouring, isCapOpen, onPourStart]);
+
+  const handlePourEnd = useCallback((pouredVolume: number) => {
+    setIsPouring(false);
+    const newVolume = Math.max(0, currentVolume - pouredVolume);
+    setCurrentVolume(newVolume);
+    onPourEnd?.(pouredVolume);
+  }, [currentVolume, onPourEnd]);
 
   useFrame(() => {
-    if (groupRef.current && hovered) {
+    if (groupRef.current && hovered && !isDragging) {
       groupRef.current.scale.setScalar(1 + Math.sin(Date.now() * 0.003) * 0.02);
+    }
+
+    // Simulate pouring when tilted and cap is open
+    if (isPouring && currentVolume > 0 && isCapOpen) {
+      const pourRate = 1; // mL per frame
+      if (Math.random() < 0.3) { // Not every frame to make it realistic
+        handlePourEnd(pourRate);
+      }
     }
   });
 
