@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { InteractiveLab } from "@/components/InteractiveLab";
+import { EnhancedLab } from "@/components/EnhancedLab";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -139,31 +139,40 @@ const Experiment = () => {
 
   return (
     <div className="relative w-full h-screen">
-      <InteractiveLab experimentData={materials} />
+      <EnhancedLab experimentData={materials} />
       
       {/* Top Bar */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4">
+      <div className="absolute top-4 left-4 z-50 flex items-center gap-3">
         <Button
           onClick={() => navigate("/lab")}
           variant="outline"
+          size="sm"
           className="glass-panel holographic-border text-foreground hover:glow-cyan"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
+          Back to Dashboard
         </Button>
-
-        <div className="glass-panel holographic-border px-6 py-3 text-center">
-          <h2 className="text-lg font-bold neon-text">{experiment.title}</h2>
-          <p className="text-sm text-muted-foreground">{experiment.category} • {experiment.difficulty}</p>
-        </div>
 
         <Button
           onClick={markAsComplete}
+          size="sm"
           className="glow-cyan holographic-border"
         >
           <CheckCircle className="w-4 h-4 mr-2" />
           Complete
         </Button>
+      </div>
+
+      {/* Environment Info */}
+      <div className="absolute top-4 right-[420px] z-50 glass-panel holographic-border p-3 space-y-1">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>🌡️</span>
+          <span>25°C</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>⏱️</span>
+          <span>0:00</span>
+        </div>
       </div>
     </div>
   );
