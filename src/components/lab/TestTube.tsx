@@ -96,13 +96,20 @@ export const TestTube = ({
   return (
     <group
       ref={groupRef}
-      position={position}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        if (isDraggable) {
+          setIsDragging(true);
+        }
+      }}
+      onPointerUp={() => setIsDragging(false)}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       onClick={handleClick}
+      onDoubleClick={() => handlePourStart()}
     >
-      {/* Test Tube Body */}
-      <mesh castShadow receiveShadow>
+      {/* Test Tube Body with Physics */}
+      <mesh ref={tubeBodyRef} castShadow receiveShadow>
         <cylinderGeometry args={[0.15, 0.15, 1.2, 32]} />
         <meshPhysicalMaterial
           color="#ffffff"
@@ -115,8 +122,8 @@ export const TestTube = ({
         />
       </mesh>
 
-      {/* Rounded Bottom */}
-      <mesh position={[0, -0.6, 0]} castShadow receiveShadow>
+      {/* Rounded Bottom with Physics */}
+      <mesh ref={tubeBottomRef} castShadow receiveShadow>
         <sphereGeometry args={[0.15, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2]} />
         <meshPhysicalMaterial
           color="#ffffff"
@@ -142,10 +149,10 @@ export const TestTube = ({
       </mesh>
 
       {/* Liquid Inside */}
-      <mesh position={[0, -0.6 + (fillLevel * 1.15) / 2, 0]}>
-        <cylinderGeometry args={[0.14, 0.14, fillLevel * 1.15, 32]} />
+      <mesh position={[0, -0.6 + (normalizedFillLevel * 1.15) / 2, 0]}>
+        <cylinderGeometry args={[0.14, 0.14, normalizedFillLevel * 1.15, 32]} />
         <meshStandardMaterial
-          color={color}
+          color={liquidColor || color}
           transparent
           opacity={0.75}
           roughness={0.3}
@@ -154,15 +161,29 @@ export const TestTube = ({
       </mesh>
 
       {/* Liquid Bottom (rounded) */}
-      {fillLevel > 0 && (
+      {normalizedFillLevel > 0 && (
         <mesh position={[0, -0.6, 0]}>
           <sphereGeometry args={[0.14, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2]} />
           <meshStandardMaterial
-            color={color}
+            color={liquidColor || color}
             transparent
             opacity={0.75}
             roughness={0.3}
             metalness={0.1}
+          />
+        </mesh>
+      )}
+
+      {/* Pouring indicator */}
+      {isPouring && currentVolume > 0 && (
+        <mesh position={[0, 0.65, 0]}>
+          <sphereGeometry args={[0.01, 8, 8]} />
+          <meshStandardMaterial
+            color={liquidColor || color}
+            transparent
+            opacity={0.8}
+            emissive={liquidColor || color}
+            emissiveIntensity={0.5}
           />
         </mesh>
       )}
