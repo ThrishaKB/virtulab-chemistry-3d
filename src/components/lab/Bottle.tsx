@@ -1,12 +1,23 @@
-import { useRef, useState } from "react";
-import { Group } from "three";
+import { useRef, useState, useCallback } from "react";
+import { Group, Vector3 } from "three";
 import { useFrame, ThreeEvent } from "@react-three/fiber";
+import { useCylinder } from "@react-three/cannon";
 import { toast } from "sonner";
+import { usePhysics } from "../../physics/PhysicsProvider";
 
 interface BottleProps {
   position: [number, number, number];
-  color: string;
-  fillLevel: number;
+  volume?: number; // Current liquid volume in mL
+  maxVolume?: number; // Maximum capacity in mL
+  liquidColor?: string; // Color of liquid content
+  isDraggable?: boolean;
+  onPourStart?: () => void;
+  onPourEnd?: (pouredVolume: number) => void;
+  chemicalName?: string; // Name of chemical in bottle
+  concentration?: string; // Concentration of chemical
+  // Legacy props for backward compatibility
+  color?: string;
+  fillLevel?: number;
 }
 
 export const Bottle = ({ position, color, fillLevel }: BottleProps) => {
