@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ChemistryLab } from "@/components/ChemistryLab";
+import { InteractiveLab } from "@/components/InteractiveLab";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { experimentMaterials } from "@/config/experimentMaterials";
 
 interface ExperimentData {
   id: string;
@@ -124,22 +125,34 @@ const Experiment = () => {
     return null;
   }
 
+  // Get experiment materials configuration
+  const experimentKey = experiment.title.toLowerCase().replace(/\s+/g, '-').replace('acid-base-indicator-reaction', 'acid-base');
+  const materials = experimentMaterials[experimentKey];
+
+  if (!materials) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-background via-background to-primary/5">
+        <div className="text-xl text-foreground/60">Experiment configuration not found</div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-screen">
-      <ChemistryLab />
+      <InteractiveLab experimentData={materials} />
       
       {/* Top Bar */}
-      <div className="absolute top-4 left-4 right-4 z-50 flex items-center justify-between">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4">
         <Button
           onClick={() => navigate("/lab")}
           variant="outline"
           className="glass-panel holographic-border text-foreground hover:glow-cyan"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Catalog
+          Back
         </Button>
 
-        <div className="glass-panel holographic-border px-6 py-3 text-center max-w-md">
+        <div className="glass-panel holographic-border px-6 py-3 text-center">
           <h2 className="text-lg font-bold neon-text">{experiment.title}</h2>
           <p className="text-sm text-muted-foreground">{experiment.category} • {experiment.difficulty}</p>
         </div>
