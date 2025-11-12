@@ -3,10 +3,10 @@ export interface Chemical {
   name: string
   formula: string
   color: string
+  concentration?: number
   properties: {
     state: 'solid' | 'liquid' | 'gas'
     ph?: number
-    concentration?: string
   }
 }
 
