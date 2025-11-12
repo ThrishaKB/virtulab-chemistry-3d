@@ -14,6 +14,14 @@ import { Suspense } from "react";
 import { Card } from "./ui/card";
 
 export const ChemistryLab = () => {
+  const handleEquipmentClick = (type: string, name: string) => {
+    console.log(`Clicked on ${type}: ${name}`);
+  };
+
+  const handleEquipmentDoubleClick = (type: string, name: string) => {
+    console.log(`Double clicked on ${type}: ${name} - Starting pour simulation`);
+  };
+
   return (
     <div className="w-full h-screen relative bg-gradient-to-br from-background via-background to-primary/5">
       <Canvas
@@ -22,37 +30,114 @@ export const ChemistryLab = () => {
         gl={{ antialias: true, alpha: true }}
       >
         <color attach="background" args={["#0f1419"]} />
-        
+
         <Suspense fallback={null}>
-          {/* Lighting */}
-          <ambientLight intensity={0.5} />
-          <directionalLight
-            position={[10, 10, 5]}
-            intensity={1}
-            castShadow
-            shadow-mapSize={[2048, 2048]}
-          />
-          <pointLight position={[-10, 10, -10]} intensity={0.3} />
-          <spotLight
-            position={[0, 10, 0]}
-            angle={0.3}
-            penumbra={1}
-            intensity={0.5}
-            castShadow
-          />
+          <PhysicsProvider>
+            <DragDropProvider>
+              {/* Lighting */}
+              <ambientLight intensity={0.5} />
+              <directionalLight
+                position={[10, 10, 5]}
+                intensity={1}
+                castShadow
+                shadow-mapSize={[2048, 2048]}
+              />
+              <pointLight position={[-10, 10, -10]} intensity={0.3} />
+              <spotLight
+                position={[0, 10, 0]}
+                angle={0.3}
+                penumbra={1}
+                intensity={0.5}
+                castShadow
+              />
 
-          {/* Lab Table */}
-          <LabTable />
+              {/* Lab Table */}
+              <LabTable />
 
-          {/* Chemistry Equipment */}
-          <Beaker position={[-2, 1.5, 0]} color="#4ade80" fillLevel={0.6} />
-          <Beaker position={[0, 1.5, -1]} color="#f59e0b" fillLevel={0.4} />
-          <Flask position={[2, 1.5, 0]} color="#3b82f6" fillLevel={0.7} />
-          <Flask position={[-1, 1.5, 1.5]} color="#ec4899" fillLevel={0.5} />
-          <TestTube position={[1, 1.5, 1.5]} color="#8b5cf6" fillLevel={0.8} />
-          <TestTube position={[1.5, 1.5, -1.5]} color="#14b8a6" fillLevel={0.6} />
-          <Bottle position={[-2.5, 1.5, -1.5]} color="#ef4444" fillLevel={0.9} />
-          <Bottle position={[2.5, 1.5, 1.5]} color="#06b6d4" fillLevel={0.7} />
+              {/* Chemistry Equipment with Physics and Drag/Drop */}
+              <InteractiveObject
+                id="beaker-1"
+                type="equipment"
+                onClick={() => handleEquipmentClick('equipment', 'Green Beaker')}
+                onDoubleClick={() => handleEquipmentDoubleClick('equipment', 'Green Beaker')}
+              >
+                <Beaker position={[-2, 1.5, 0]} volume={150} liquidColor="#4ade80" />
+              </InteractiveObject>
+
+              <InteractiveObject
+                id="beaker-2"
+                type="equipment"
+                onClick={() => handleEquipmentClick('equipment', 'Orange Beaker')}
+                onDoubleClick={() => handleEquipmentDoubleClick('equipment', 'Orange Beaker')}
+              >
+                <Beaker position={[0, 1.5, -1]} volume={100} liquidColor="#f59e0b" />
+              </InteractiveObject>
+
+              <InteractiveObject
+                id="flask-1"
+                type="equipment"
+                onClick={() => handleEquipmentClick('equipment', 'Blue Flask')}
+                onDoubleClick={() => handleEquipmentDoubleClick('equipment', 'Blue Flask')}
+              >
+                <Flask position={[2, 1.5, 0]} volume={350} liquidColor="#3b82f6" />
+              </InteractiveObject>
+
+              <InteractiveObject
+                id="flask-2"
+                type="equipment"
+                onClick={() => handleEquipmentClick('equipment', 'Pink Flask')}
+                onDoubleClick={() => handleEquipmentDoubleClick('equipment', 'Pink Flask')}
+              >
+                <Flask position={[-1, 1.5, 1.5]} volume={250} liquidColor="#ec4899" />
+              </InteractiveObject>
+
+              <InteractiveObject
+                id="testtube-1"
+                type="equipment"
+                onClick={() => handleEquipmentClick('equipment', 'Purple Test Tube')}
+                onDoubleClick={() => handleEquipmentDoubleClick('equipment', 'Purple Test Tube')}
+              >
+                <TestTube position={[1, 1.5, 1.5]} volume={40} liquidColor="#8b5cf6" />
+              </InteractiveObject>
+
+              <InteractiveObject
+                id="testtube-2"
+                type="equipment"
+                onClick={() => handleEquipmentClick('equipment', 'Teal Test Tube')}
+                onDoubleClick={() => handleEquipmentDoubleClick('equipment', 'Teal Test Tube')}
+              >
+                <TestTube position={[1.5, 1.5, -1.5]} volume={30} liquidColor="#14b8a6" />
+              </InteractiveObject>
+
+              <InteractiveObject
+                id="bottle-1"
+                type="chemical"
+                onClick={() => handleEquipmentClick('chemical', 'HCl Bottle')}
+                onDoubleClick={() => handleEquipmentDoubleClick('chemical', 'HCl Bottle')}
+              >
+                <Bottle
+                  position={[-2.5, 1.5, -1.5]}
+                  volume={225}
+                  liquidColor="#ef4444"
+                  chemicalName="HCl"
+                  concentration="1M"
+                />
+              </InteractiveObject>
+
+              <InteractiveObject
+                id="bottle-2"
+                type="chemical"
+                onClick={() => handleEquipmentClick('chemical', 'NaOH Bottle')}
+                onDoubleClick={() => handleEquipmentDoubleClick('chemical', 'NaOH Bottle')}
+              >
+                <Bottle
+                  position={[2.5, 1.5, 1.5]}
+                  volume={175}
+                  liquidColor="#06b6d4"
+                  chemicalName="NaOH"
+                  concentration="1M"
+                />
+              </InteractiveObject>
 
           {/* Holographic Molecules */}
           <HolographicMolecule position={[-3, 3, 0]} type="water" />
