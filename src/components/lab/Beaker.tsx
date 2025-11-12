@@ -151,6 +151,31 @@ export const Beaker = ({
         />
       </mesh>
 
+      {/* Pour Spout */}
+      <mesh position={[0.35, 0.45, 0]} rotation={[0, 0, -Math.PI / 6]}>
+        <cylinderGeometry args={[0.03, 0.02, 0.15, 8]} />
+        <meshPhysicalMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.4}
+          roughness={0.1}
+          metalness={0.1}
+          transmission={0.8}
+        />
+      </mesh>
+
+      {/* Handle */}
+      <mesh position={[0.42, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.08, 0.015, 8, 16]} />
+        <meshPhysicalMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.3}
+          roughness={0.2}
+          metalness={0.1}
+        />
+      </mesh>
+
       {/* Measurement Marks */}
       {[0.2, 0, -0.2].map((y, i) => (
         <mesh key={i} position={[0.36, y, 0]} rotation={[0, 0, Math.PI / 2]}>
@@ -158,6 +183,20 @@ export const Beaker = ({
           <meshStandardMaterial color="#333333" />
         </mesh>
       ))}
+
+      {/* Pouring indicator */}
+      {isPouring && currentVolume > 0 && (
+        <mesh position={[0.45, 0.3, 0]}>
+          <sphereGeometry args={[0.02, 8, 8]} />
+          <meshStandardMaterial
+            color={liquidColor || color}
+            transparent
+            opacity={0.8}
+            emissive={liquidColor || color}
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+      )}
     </group>
   );
 };
