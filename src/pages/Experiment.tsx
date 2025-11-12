@@ -126,13 +126,28 @@ const Experiment = () => {
   }
 
   // Get experiment materials configuration
-  const experimentKey = experiment.title.toLowerCase().replace(/\s+/g, '-').replace('acid-base-indicator-reaction', 'acid-base');
+  const getExperimentKey = (title: string): string => {
+    const titleLower = title.toLowerCase();
+    if (titleLower.includes('neutralization')) return 'neutralization';
+    if (titleLower.includes('precipitation')) return 'precipitation';
+    if (titleLower.includes('displacement')) return 'displacement';
+    if (titleLower.includes('combustion')) return 'combustion';
+    if (titleLower.includes('decomposition')) return 'decomposition';
+    if (titleLower.includes('acid-base') || titleLower.includes('indicator')) return 'acid-base';
+    return '';
+  };
+
+  const experimentKey = getExperimentKey(experiment.title);
   const materials = experimentMaterials[experimentKey];
 
   if (!materials) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="text-xl text-foreground/60">Experiment configuration not found</div>
+        <div className="text-xl text-foreground/60">
+          Experiment configuration not found for "{experiment.title}"
+          <br />
+          <span className="text-sm">Key attempted: {experimentKey}</span>
+        </div>
       </div>
     );
   }
