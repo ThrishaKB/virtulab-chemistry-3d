@@ -6,6 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, BookOpen, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import neutralizationImg from "@/assets/experiments/neutralization-reaction.jpg";
+import precipitationImg from "@/assets/experiments/precipitation-reaction.jpg";
+import displacementImg from "@/assets/experiments/displacement-reaction.jpg";
+import combustionImg from "@/assets/experiments/combustion-reaction.jpg";
+import decompositionImg from "@/assets/experiments/decomposition-reaction.jpg";
+import acidBaseImg from "@/assets/experiments/acid-base-indicator.jpg";
 
 interface Experiment {
   id: string;
@@ -90,6 +96,18 @@ export const CourseCatalog = () => {
     navigate(`/lab/experiment/${experimentId}`);
   };
 
+  const getExperimentImage = (title: string) => {
+    const imageMap: Record<string, string> = {
+      'Neutralization Reaction': neutralizationImg,
+      'Precipitation Reaction': precipitationImg,
+      'Displacement Reaction': displacementImg,
+      'Combustion Reaction': combustionImg,
+      'Decomposition Reaction': decompositionImg,
+      'Acid-Base Indicator Reaction': acidBaseImg,
+    };
+    return imageMap[title];
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -134,9 +152,9 @@ export const CourseCatalog = () => {
             >
               {/* Thumbnail */}
               <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
-                {experiment.thumbnail_url ? (
+                {getExperimentImage(experiment.title) ? (
                   <img
-                    src={experiment.thumbnail_url}
+                    src={getExperimentImage(experiment.title)}
                     alt={experiment.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
