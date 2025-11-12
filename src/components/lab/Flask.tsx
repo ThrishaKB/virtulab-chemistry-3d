@@ -97,13 +97,20 @@ export const Flask = ({
   return (
     <group
       ref={groupRef}
-      position={position}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        if (isDraggable) {
+          setIsDragging(true);
+        }
+      }}
+      onPointerUp={() => setIsDragging(false)}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       onClick={handleClick}
+      onDoubleClick={() => handlePourStart()}
     >
-      {/* Flask Body (Conical) */}
-      <mesh castShadow receiveShadow>
+      {/* Flask Body (Conical) with Physics */}
+      <mesh ref={flaskBodyRef} castShadow receiveShadow>
         <coneGeometry args={[0.5, 1.2, 32, 1, true]} />
         <meshPhysicalMaterial
           color="#ffffff"
@@ -129,8 +136,8 @@ export const Flask = ({
         />
       </mesh>
 
-      {/* Flask Neck */}
-      <mesh position={[0, 0.8, 0]} castShadow receiveShadow>
+      {/* Flask Neck with Physics */}
+      <mesh ref={flaskNeckRef} castShadow receiveShadow>
         <cylinderGeometry args={[0.15, 0.15, 0.6, 32]} />
         <meshPhysicalMaterial
           color="#ffffff"
@@ -156,16 +163,30 @@ export const Flask = ({
       </mesh>
 
       {/* Liquid Inside */}
-      <mesh position={[0, -0.6 + (fillLevel * 1.2) / 2, 0]}>
-        <coneGeometry args={[0.48 * fillLevel, fillLevel * 1.15, 32]} />
+      <mesh position={[0, -0.6 + (normalizedFillLevel * 1.2) / 2, 0]}>
+        <coneGeometry args={[0.48 * normalizedFillLevel, normalizedFillLevel * 1.15, 32]} />
         <meshStandardMaterial
-          color={color}
+          color={liquidColor || color}
           transparent
           opacity={0.7}
           roughness={0.3}
           metalness={0.1}
         />
       </mesh>
+
+      {/* Pouring indicator */}
+      {isPouring && currentVolume > 0 && (
+        <mesh position={[0.1, 1.2, 0]}>
+          <sphereGeometry args={[0.015, 8, 8]} />
+          <meshStandardMaterial
+            color={liquidColor || color}
+            transparent
+            opacity={0.8}
+            emissive={liquidColor || color}
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+      )}
     </group>
   );
 };
