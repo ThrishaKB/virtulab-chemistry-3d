@@ -172,31 +172,65 @@ const Experiment = () => {
     id: experiment.id,
     title: experiment.title,
     description: experiment.description,
-    difficulty: experiment.difficulty,
-    duration: experiment.duration,
+    difficulty: (experiment.difficulty || 'beginner') as 'beginner' | 'intermediate' | 'advanced',
+    duration: parseInt(experiment.duration) || 15,
     category: experiment.category,
-    steps: materials.steps.map(step => ({
+    objectives: [
+      'Complete the experiment successfully',
+      'Observe chemical reactions',
+      'Learn chemistry concepts'
+    ],
+    steps: materials.steps.map((step, idx) => ({
+      id: `step${idx + 1}`,
       instruction: step,
       chemicals: [],
-      equipment: ['beaker']
+      equipment: ['beaker'],
+      action: 'pour' as const,
+      expectedObservation: 'Observe the reaction',
+      completed: false
     })),
     materials: materials.equipment.map(eq => ({
-      equipmentType: eq.type
+      equipmentType: eq.type,
+      quantity: 1,
+      required: true
     })),
     chemicals: materials.chemicals.map(chem => ({
       id: chem.id,
       name: chem.name,
       formula: chem.formula,
       color: chem.color,
+      concentration: 0.1,
       properties: {
-        state: 'liquid' as const
+        state: 'liquid' as const,
+        color: chem.color,
+        density: 1.0,
+        boilingPoint: 100,
+        meltingPoint: 0,
+        solubility: 100,
+        reactivity: []
       }
     })),
     safetyNotes: [
       'Wear safety goggles at all times',
       'Handle chemicals with care',
       'Work in a well-ventilated area'
-    ]
+    ],
+    expectedResults: [
+      'Successful completion of the experiment',
+      'Observable chemical reactions'
+    ],
+    reactions: materials.reactions?.map((rule, idx) => ({
+      id: `reaction${idx + 1}`,
+      reactants: [],
+      products: [],
+      equation: '',
+      conditions: { temperature: 25 },
+      effects: [{
+        type: 'color-change' as const,
+        intensity: 0.8,
+        duration: 3000
+      }]
+    })) || []
   };
 
   return (
