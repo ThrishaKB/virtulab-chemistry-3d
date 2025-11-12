@@ -1,12 +1,21 @@
-import { useRef, useState } from "react";
-import { Mesh, Group } from "three";
+import { useRef, useState, useCallback } from "react";
+import { Mesh, Group, Vector3 } from "three";
 import { useFrame, ThreeEvent } from "@react-three/fiber";
+import { useBox, useCylinder } from "@react-three/cannon";
 import { toast } from "sonner";
+import { usePhysics } from "../../physics/PhysicsProvider";
 
 interface BeakerProps {
   position: [number, number, number];
-  color: string;
-  fillLevel: number;
+  volume?: number; // Current liquid volume in mL
+  maxVolume?: number; // Maximum capacity in mL
+  liquidColor?: string; // Color of liquid content
+  isDraggable?: boolean;
+  onPourStart?: () => void;
+  onPourEnd?: (pouredVolume: number) => void;
+  // Legacy props for backward compatibility
+  color?: string;
+  fillLevel?: number;
 }
 
 export const Beaker = ({ position, color, fillLevel }: BeakerProps) => {
