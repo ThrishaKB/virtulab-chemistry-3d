@@ -7,6 +7,9 @@ import { TestTube } from "./lab/TestTube";
 import { Bottle } from "./lab/Bottle";
 import { HolographicMolecule } from "./lab/HolographicMolecule";
 import { FloatingScreen } from "./lab/FloatingScreen";
+import { PhysicsProvider } from "../physics/PhysicsProvider";
+import { DragDropProvider } from "../interactions/DragDropManager";
+import { InteractiveObject } from "../interactions/InteractiveObject";
 import { Suspense } from "react";
 import { Card } from "./ui/card";
 
