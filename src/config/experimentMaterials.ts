@@ -119,23 +119,32 @@ export const experimentMaterials: Record<string, ExperimentMaterials> = {
     title: "Combustion Reaction",
     chemicals: [
       { id: "ethanol", name: "Ethanol", formula: "C₂H₅OH", color: "#ffeb3b", state: "liquid" },
-      { id: "oxygen", name: "Oxygen", formula: "O₂", color: "#e3f2fd", state: "gas" },
+      { id: "water", name: "Water", formula: "H₂O", color: "#4fc3f7", state: "liquid" },
     ],
     equipment: [
       { id: "burner", name: "Bunsen Burner", type: "burner" },
       { id: "beaker-100", name: "Beaker 100ml", type: "beaker", capacity: 100 },
     ],
     steps: [
-      "Pour small amount of ethanol into beaker",
-      "Light the Bunsen burner",
-      "Observe the flame and combustion products"
+      "Click the Bunsen burner to light it",
+      "Pour ethanol near the flame to increase intensity",
+      "Add water to reduce the flame",
+      "Observe how different chemicals affect combustion"
     ],
     reactions: [
       {
-        reactants: ["ethanol", "oxygen"],
+        reactants: ["ethanol"],
         product: {
-          name: "Carbon Dioxide + Water",
-          color: "#ff6b00",
+          name: "Increased Flame (Fuel)",
+          color: "#ff8800",
+          effect: "flame"
+        }
+      },
+      {
+        reactants: ["water"],
+        product: {
+          name: "Reduced Flame (Extinguish)",
+          color: "#4fc3f7",
           effect: "flame"
         }
       }

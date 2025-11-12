@@ -4,6 +4,7 @@ import { LabTable } from "./lab/LabTable";
 import { DraggableChemical } from "./lab/DraggableChemical";
 import { DraggableEquipment } from "./lab/DraggableEquipment";
 import { ParticleEffect } from "./lab/ParticleEffect";
+import { BunsenBurner } from "./lab/BunsenBurner";
 import { Suspense, useState, useCallback } from "react";
 import { Card } from "./ui/card";
 import { ExperimentMaterials } from "@/config/experimentMaterials";
@@ -35,10 +36,65 @@ export const InteractiveLab = ({ experimentData }: InteractiveLabProps) => {
     color: string;
   } | null>(null);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [burnerLit, setBurnerLit] = useState(false);
+  const [flameIntensity, setFlameIntensity] = useState(1);
+  
+  const isCombustionExperiment = experimentData.experimentId === "combustion";
 
   const handleChemicalPour = useCallback(
     (chemicalId: string, position: Vector3) => {
-      // Find nearby equipment
+      const chemical = experimentData.chemicals.find((c) => c.id === chemicalId);
+      if (!chemical) return;
+
+      // Special handling for combustion experiment
+      if (isCombustionExperiment && burnerLit) {
+        // Check if pouring near burner (position around [0, 1.5, 0])
+        const burnerPosition = new Vector3(0, 1.5, 0);
+        const distanceToBurner = burnerPosition.distanceTo(position);
+        
+        if (distanceToBurner < 2) {
+          if (chemicalId === "ethanol") {
+            // Ethanol increases flame
+            setFlameIntensity(prev => Math.min(prev + 0.5, 3));
+            toast({
+              title: "🔥 Flame Intensified!",
+              description: "Ethanol acts as fuel, increasing combustion",
+            });
+            
+            setActiveReaction({
+              position: [0, 2, 0],
+              effect: "flame",
+              color: "#ff8800",
+            });
+            
+            setTimeout(() => {
+              setFlameIntensity(prev => Math.max(prev - 0.3, 1));
+              setActiveReaction(null);
+            }, 3000);
+            
+            return;
+          } else if (chemicalId === "water") {
+            // Water reduces/extinguishes flame
+            setFlameIntensity(prev => Math.max(prev - 0.7, 0.2));
+            toast({
+              title: "💧 Flame Reduced",
+              description: "Water cools and suppresses combustion",
+            });
+            
+            if (flameIntensity < 0.5) {
+              setBurnerLit(false);
+              toast({
+                title: "Flame Extinguished",
+                description: "Too much water has put out the fire",
+              });
+            }
+            
+            return;
+          }
+        }
+      }
+
+      // Find nearby equipment for non-combustion reactions
       const nearbyEquipment = Object.entries(equipmentStates).find(([_, state]) => {
         const distance = state.position.distanceTo(position);
         return distance < 1.5;
@@ -47,16 +103,13 @@ export const InteractiveLab = ({ experimentData }: InteractiveLabProps) => {
       if (!nearbyEquipment) {
         toast({
           title: "No container nearby",
-          description: "Move the chemical closer to a beaker or flask",
+          description: "Move the chemical closer to a beaker, flask, or burner",
           variant: "destructive",
         });
         return;
       }
 
       const [equipmentId, equipmentState] = nearbyEquipment;
-      const chemical = experimentData.chemicals.find((c) => c.id === chemicalId);
-      
-      if (!chemical) return;
 
       // Update equipment with new liquid
       setEquipmentStates((prev) => {
@@ -86,8 +139,22 @@ export const InteractiveLab = ({ experimentData }: InteractiveLabProps) => {
         description: `Poured into ${equipmentId}`,
       });
     },
-    [equipmentStates, experimentData, toast]
+    [equipmentStates, experimentData, toast, isCombustionExperiment, burnerLit, flameIntensity]
   );
+
+  const handleLightBurner = useCallback(() => {
+    setBurnerLit(true);
+    setFlameIntensity(1);
+    toast({
+      title: "🔥 Burner Lit!",
+      description: "Add ethanol to increase the flame or water to extinguish it",
+    });
+    
+    // Mark first step as complete
+    if (!completedSteps.includes(0)) {
+      setCompletedSteps([0]);
+    }
+  }, [toast, completedSteps]);
 
   const checkForReaction = (chemicalIds: string[], position: Vector3) => {
     experimentData.reactions.forEach((reaction) => {
@@ -181,16 +248,31 @@ export const InteractiveLab = ({ experimentData }: InteractiveLabProps) => {
           ))}
 
           {/* Render equipment */}
-          {experimentData.equipment.map((equipment, index) => (
-            <DraggableEquipment
-              key={equipment.id}
-              id={equipment.id}
-              type={equipment.type}
-              position={[-2 + index * 1.5, 1.5, 0]}
-              onPlace={handleEquipmentPlace}
-              currentLiquid={equipmentStates[equipment.id]?.liquid}
-            />
-          ))}
+          {experimentData.equipment.map((equipment, index) => {
+            // For burner in combustion experiment, use BunsenBurner component
+            if (equipment.type === "burner" && isCombustionExperiment) {
+              return (
+                <BunsenBurner
+                  key={equipment.id}
+                  position={[0, 1.5, 0]}
+                  isLit={burnerLit}
+                  flameIntensity={flameIntensity}
+                  onLight={handleLightBurner}
+                />
+              );
+            }
+            
+            return (
+              <DraggableEquipment
+                key={equipment.id}
+                id={equipment.id}
+                type={equipment.type}
+                position={[-2 + index * 1.5, 1.5, 0]}
+                onPlace={handleEquipmentPlace}
+                currentLiquid={equipmentStates[equipment.id]?.liquid}
+              />
+            );
+          })}
 
           {/* Particle effects for reactions */}
           {activeReaction && (
