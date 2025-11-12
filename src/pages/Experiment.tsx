@@ -126,15 +126,31 @@ const Experiment = () => {
   }
 
   // Get experiment materials configuration
+  const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
   const getExperimentKey = (title: string): string => {
-    const titleLower = title.toLowerCase();
-    if (titleLower.includes('neutralization')) return 'neutralization';
-    if (titleLower.includes('precipitation')) return 'precipitation';
-    if (titleLower.includes('displacement')) return 'displacement';
-    if (titleLower.includes('combustion')) return 'combustion';
-    if (titleLower.includes('decomposition')) return 'decomposition';
-    if (titleLower.includes('acid-base') || titleLower.includes('indicator')) return 'acid-base';
-    return '';
+    const t = normalize(title);
+
+    // Exact title mappings (normalized)
+    const map: Record<string, string> = {
+      [normalize("Neutralization Reaction")]: "neutralization",
+      [normalize("Precipitation Reaction")]: "precipitation",
+      [normalize("Displacement Reaction")]: "displacement",
+      [normalize("Combustion Reaction")]: "combustion",
+      [normalize("Decomposition Reaction")]: "decomposition",
+      [normalize("Acid-Base Indicator Reaction")]: "acid-base",
+      [normalize("Acid Base Indicator Reaction")]: "acid-base",
+    };
+
+    if (map[t]) return map[t];
+
+    // Fuzzy contains fallback
+    if (t.includes("neutral")) return "neutralization";
+    if (t.includes("precip")) return "precipitation";
+    if (t.includes("displac")) return "displacement";
+    if (t.includes("combust")) return "combustion";
+    if (t.includes("decompos")) return "decomposition";
+    if (t.includes("acid") || t.includes("indicator")) return "acid-base";
+    return "";
   };
 
   const experimentKey = getExperimentKey(experiment.title);
@@ -143,10 +159,10 @@ const Experiment = () => {
   if (!materials) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="text-xl text-foreground/60">
+        <div className="text-xl text-foreground/60 text-center">
           Experiment configuration not found for "{experiment.title}"
           <br />
-          <span className="text-sm">Key attempted: {experimentKey}</span>
+          <span className="text-sm">Key attempted: {experimentKey || '—'}</span>
         </div>
       </div>
     );
