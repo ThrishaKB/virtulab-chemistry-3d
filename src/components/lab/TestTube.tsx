@@ -18,18 +18,78 @@ interface TestTubeProps {
   fillLevel?: number;
 }
 
-export const TestTube = ({ position, color, fillLevel }: TestTubeProps) => {
+export const TestTube = ({
+  position,
+  volume = 25,
+  maxVolume = 50,
+  liquidColor = "#8b5cf6",
+  isDraggable = true,
+  onPourStart,
+  onPourEnd,
+  // Legacy props for backward compatibility
+  color,
+  fillLevel
+}: TestTubeProps) => {
   const groupRef = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isPouring, setIsPouring] = useState(false);
+  const [currentVolume, setCurrentVolume] = useState(volume);
 
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+  // Backward compatibility: use fillLevel if volume is not provided
+  const normalizedFillLevel = fillLevel !== undefined ? fillLevel : currentVolume / maxVolume;
+
+  const { materials } = usePhysics();
+
+  // Physics body for the test tube body (cylinder shape)
+  const [tubeBodyRef, tubeBodyApi] = useCylinder(() => ({
+    mass: isDraggable ? 0.2 : 0, // Very light for easy manipulation
+    position,
+    material: materials.glass,
+    args: [0.15, 0.15, 1.2, 8], // [radiusTop, radiusBottom, height, numSegments]
+    type: isDraggable ? 'Dynamic' : 'Static',
+  }), null);
+
+  // Physics body for the rounded bottom (sphere shape)
+  const [tubeBottomRef, tubeBottomApi] = useSphere(() => ({
+    mass: isDraggable ? 0.05 : 0,
+    position: [position[0], position[1] - 0.6, position[2]],
+    material: materials.glass,
+    args: [0.15], // [radius]
+    type: isDraggable ? 'Dynamic' : 'Static',
+  }), null);
+
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    toast.success(`Test Tube - ${Math.round(fillLevel * 100)}% filled`);
-  };
+    const fillPercentage = Math.round(normalizedFillLevel * 100);
+    toast.success(`Test Tube - ${fillPercentage}% filled (${currentVolume}mL/${maxVolume}mL)`);
+  }, [normalizedFillLevel, currentVolume, maxVolume]);
+
+  const handlePourStart = useCallback(() => {
+    if (currentVolume > 0 && !isPouring) {
+      setIsPouring(true);
+      onPourStart?.();
+    }
+  }, [currentVolume, isPouring, onPourStart]);
+
+  const handlePourEnd = useCallback((pouredVolume: number) => {
+    setIsPouring(false);
+    const newVolume = Math.max(0, currentVolume - pouredVolume);
+    setCurrentVolume(newVolume);
+    onPourEnd?.(pouredVolume);
+  }, [currentVolume, onPourEnd]);
 
   useFrame(() => {
-    if (groupRef.current && hovered) {
+    if (groupRef.current && hovered && !isDragging) {
       groupRef.current.position.y += Math.sin(Date.now() * 0.005) * 0.002;
+    }
+
+    // Simulate pouring when tilted
+    if (isPouring && currentVolume > 0) {
+      const pourRate = 0.5; // mL per frame (slower for test tube)
+      if (Math.random() < 0.3) { // Not every frame to make it realistic
+        handlePourEnd(pourRate);
+      }
     }
   });
 
