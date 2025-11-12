@@ -88,18 +88,20 @@ export const Beaker = ({
   return (
     <group
       ref={groupRef}
-      position={position}
       onPointerDown={(e) => {
         e.stopPropagation();
-        setIsDragging(true);
+        if (isDraggable) {
+          setIsDragging(true);
+        }
       }}
       onPointerUp={() => setIsDragging(false)}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       onClick={handleClick}
+      onDoubleClick={() => handlePourStart()}
     >
-      {/* Glass Body */}
-      <mesh castShadow receiveShadow>
+      {/* Glass Body with Physics */}
+      <mesh ref={beakerRef} castShadow receiveShadow>
         <cylinderGeometry args={[0.4, 0.35, 1, 32, 1, true]} />
         <meshPhysicalMaterial
           color="#ffffff"
@@ -126,10 +128,10 @@ export const Beaker = ({
       </mesh>
 
       {/* Liquid Inside */}
-      <mesh position={[0, -0.5 + (fillLevel * 1) / 2, 0]}>
-        <cylinderGeometry args={[0.35, 0.33, fillLevel * 0.95, 32]} />
+      <mesh position={[0, -0.5 + (normalizedFillLevel * 1) / 2, 0]}>
+        <cylinderGeometry args={[0.35, 0.33, normalizedFillLevel * 0.95, 32]} />
         <meshStandardMaterial
-          color={color}
+          color={liquidColor || color}
           transparent
           opacity={0.7}
           roughness={0.3}
