@@ -186,18 +186,27 @@ export const ChemistryLab = () => {
 
       {/* UI Overlay with futuristic styling */}
       <Card className="absolute top-4 left-4 p-4 glass-panel holographic-border">
-        <h1 className="text-2xl font-bold text-glow-cyan mb-2">Virtual Chemistry Lab</h1>
+        <h1 className="text-2xl font-bold text-glow-cyan mb-2">Interactive Chemistry Lab</h1>
         <div className="space-y-1 text-sm text-muted-foreground">
           <p>🖱️ <span className="text-primary">Left click + drag:</span> Rotate view</p>
           <p>🖱️ <span className="text-primary">Right click + drag:</span> Pan view</p>
           <p>🖱️ <span className="text-primary">Scroll:</span> Zoom in/out</p>
-          <p>🧪 <span className="text-primary">Click equipment:</span> Interact with items</p>
+          <p>🧪 <span className="text-primary">Click equipment:</span> Select & view info</p>
+          <p>✋ <span className="text-primary">Drag equipment:</span> Move items around</p>
+          <p>💧 <span className="text-primary">Double-click:</span> Start pouring</p>
+          <p>🔴 <span className="text-primary">Click bottle caps:</span> Open/close bottles</p>
         </div>
       </Card>
 
       <Card className="absolute bottom-4 left-4 p-3 glass-panel border-accent/30 glow-purple">
         <p className="text-xs text-foreground/90">
-          <span className="text-accent font-semibold text-glow-purple">Lab Equipment:</span> Beakers • Flasks • Test Tubes • Bottles
+          <span className="text-accent font-semibold text-glow-purple">Interactive Lab:</span> Physics-enabled • Drag & Drop • Pouring Simulation
+        </p>
+      </Card>
+
+      <Card className="absolute top-4 right-4 p-3 glass-panel border-green/30 glow-green">
+        <p className="text-xs text-foreground/90">
+          <span className="text-green font-semibold text-glow-green">New Features:</span> Realistic Physics • Chemical Reactions • Volume Tracking
         </p>
       </Card>
     </div>
