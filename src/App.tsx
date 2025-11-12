@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import Auth from "./pages/Auth";
 import Lab from "./pages/Lab";
+import Experiment from "./pages/Experiment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
             <Route path="/" element={<Navigate to="/auth" replace />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/lab" element={<Lab />} />
+            <Route path="/lab/experiment/:experimentId" element={<Experiment />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

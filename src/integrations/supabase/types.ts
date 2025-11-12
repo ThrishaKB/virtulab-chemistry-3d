@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      experiments: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          difficulty: string
+          duration: string
+          id: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          difficulty: string
+          duration: string
+          id?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration?: string
+          id?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -40,6 +76,44 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      user_progress: {
+        Row: {
+          completed: boolean
+          created_at: string
+          experiment_id: string
+          id: string
+          last_accessed_at: string
+          progress_percentage: number
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          experiment_id: string
+          id?: string
+          last_accessed_at?: string
+          progress_percentage?: number
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          experiment_id?: string
+          id?: string
+          last_accessed_at?: string
+          progress_percentage?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_experiment_id_fkey"
+            columns: ["experiment_id"]
+            isOneToOne: false
+            referencedRelation: "experiments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
