@@ -139,46 +139,48 @@ export const ChemistryLab = () => {
                 />
               </InteractiveObject>
 
-          {/* Holographic Molecules */}
-          <HolographicMolecule position={[-3, 3, 0]} type="water" />
-          <HolographicMolecule position={[3, 3.5, 0]} type="co2" />
-          <HolographicMolecule position={[0, 3.2, 2]} type="ethanol" />
+              {/* Holographic Molecules */}
+              <HolographicMolecule position={[-3, 3, 0]} type="water" />
+              <HolographicMolecule position={[3, 3.5, 0]} type="co2" />
+              <HolographicMolecule position={[0, 3.2, 2]} type="ethanol" />
 
-          {/* Floating Information Screens */}
-          <FloatingScreen
-            position={[-3.5, 2.5, -2]}
-            text="H₂O\nWater Molecule"
-            color="#00ffff"
-          />
-          <FloatingScreen
-            position={[3.5, 2.8, -2]}
-            text="CO₂\nCarbon Dioxide"
-            color="#aa00ff"
-          />
-          <FloatingScreen
-            position={[0, 2.6, -2.5]}
-            text="C₂H₅OH\nEthanol"
-            color="#ff00ff"
-          />
+              {/* Floating Information Screens */}
+              <FloatingScreen
+                position={[-3.5, 2.5, -2]}
+                text="H₂O\nWater Molecule"
+                color="#00ffff"
+              />
+              <FloatingScreen
+                position={[3.5, 2.8, -2]}
+                text="CO₂\nCarbon Dioxide"
+                color="#aa00ff"
+              />
+              <FloatingScreen
+                position={[0, 2.6, -2.5]}
+                text="C₂H₅OH\nEthanol"
+                color="#ff00ff"
+              />
 
-          {/* Environment and Controls */}
-          <Environment preset="apartment" />
-          <ContactShadows
-            position={[0, 0, 0]}
-            opacity={0.5}
-            scale={20}
-            blur={1.5}
-            far={10}
-          />
-          <OrbitControls
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
-            minPolarAngle={Math.PI / 6}
-            maxPolarAngle={Math.PI / 2.2}
-            minDistance={5}
-            maxDistance={15}
-          />
+              {/* Environment and Controls */}
+              <Environment preset="apartment" />
+              <ContactShadows
+                position={[0, 0, 0]}
+                opacity={0.5}
+                scale={20}
+                blur={1.5}
+                far={10}
+              />
+              <OrbitControls
+                enablePan={true}
+                enableZoom={true}
+                enableRotate={true}
+                minPolarAngle={Math.PI / 6}
+                maxPolarAngle={Math.PI / 2.2}
+                minDistance={5}
+                maxDistance={15}
+              />
+            </DragDropProvider>
+          </PhysicsProvider>
         </Suspense>
       </Canvas>
 
