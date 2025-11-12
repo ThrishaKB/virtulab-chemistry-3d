@@ -100,13 +100,20 @@ export const Bottle = ({
   return (
     <group
       ref={groupRef}
-      position={position}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        if (isDraggable) {
+          setIsDragging(true);
+        }
+      }}
+      onPointerUp={() => setIsDragging(false)}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       onClick={handleClick}
+      onDoubleClick={() => handlePourStart()}
     >
-      {/* Bottle Body */}
-      <mesh castShadow receiveShadow>
+      {/* Bottle Body with Physics */}
+      <mesh ref={bottleRef} castShadow receiveShadow>
         <cylinderGeometry args={[0.35, 0.35, 1.4, 32]} />
         <meshPhysicalMaterial
           color="#ffffff"
@@ -146,31 +153,41 @@ export const Bottle = ({
         />
       </mesh>
 
-      {/* Bottle Cap */}
-      <mesh position={[0, 1.15, 0]} castShadow>
-        <cylinderGeometry args={[0.14, 0.14, 0.15, 32]} />
-        <meshStandardMaterial
-          color="#1e293b"
-          roughness={0.4}
-          metalness={0.6}
-        />
-      </mesh>
+      {/* Bottle Cap (Interactive) */}
+      <group
+        position={[0, isCapOpen ? 1.3 : 1.15, 0]}
+        onPointerDown={handleCapClick}
+        onClick={handleCapClick}
+      >
+        <mesh castShadow>
+          <cylinderGeometry args={[0.14, 0.14, 0.15, 32]} />
+          <meshStandardMaterial
+            color={isCapOpen ? "#dc2626" : "#1e293b"}
+            roughness={0.4}
+            metalness={0.6}
+            emissive={isCapOpen ? "#dc2626" : "#000000"}
+            emissiveIntensity={isCapOpen ? 0.2 : 0}
+          />
+        </mesh>
 
-      {/* Cap Top */}
-      <mesh position={[0, 1.225, 0]} castShadow>
-        <cylinderGeometry args={[0.14, 0.16, 0.05, 32]} />
-        <meshStandardMaterial
-          color="#1e293b"
-          roughness={0.4}
-          metalness={0.6}
-        />
-      </mesh>
+        {/* Cap Top */}
+        <mesh position={[0, 0.075, 0]} castShadow>
+          <cylinderGeometry args={[0.14, 0.16, 0.05, 32]} />
+          <meshStandardMaterial
+            color={isCapOpen ? "#dc2626" : "#1e293b"}
+            roughness={0.4}
+            metalness={0.6}
+            emissive={isCapOpen ? "#dc2626" : "#000000"}
+            emissiveIntensity={isCapOpen ? 0.2 : 0}
+          />
+        </mesh>
+      </group>
 
       {/* Liquid Inside */}
-      <mesh position={[0, -0.7 + (fillLevel * 1.4) / 2, 0]}>
-        <cylinderGeometry args={[0.33, 0.33, fillLevel * 1.35, 32]} />
+      <mesh position={[0, -0.7 + (normalizedFillLevel * 1.4) / 2, 0]}>
+        <cylinderGeometry args={[0.33, 0.33, normalizedFillLevel * 1.35, 32]} />
         <meshStandardMaterial
-          color={color}
+          color={liquidColor || color}
           transparent
           opacity={0.7}
           roughness={0.3}
@@ -178,7 +195,7 @@ export const Bottle = ({
         />
       </mesh>
 
-      {/* Label */}
+      {/* Label with Chemical Info */}
       <mesh position={[0, 0, 0.36]} rotation={[0, 0, 0]}>
         <planeGeometry args={[0.5, 0.4]} />
         <meshStandardMaterial
@@ -187,6 +204,40 @@ export const Bottle = ({
           metalness={0.1}
         />
       </mesh>
+
+      {/* Chemical Name on Label (simplified text representation) */}
+      <mesh position={[0, 0.05, 0.37]} rotation={[0, 0, 0]}>
+        <planeGeometry args={[0.4, 0.1]} />
+        <meshStandardMaterial
+          color={liquidColor || color}
+          transparent
+          opacity={0.8}
+        />
+      </mesh>
+
+      {/* Concentration on Label */}
+      <mesh position={[0, -0.05, 0.37]} rotation={[0, 0, 0]}>
+        <planeGeometry args={[0.3, 0.05]} />
+        <meshStandardMaterial
+          color="#64748b"
+          transparent
+          opacity={0.6}
+        />
+      </mesh>
+
+      {/* Pouring indicator */}
+      {isPouring && currentVolume > 0 && isCapOpen && (
+        <mesh position={[0.1, 1.4, 0]}>
+          <sphereGeometry args={[0.015, 8, 8]} />
+          <meshStandardMaterial
+            color={liquidColor || color}
+            transparent
+            opacity={0.8}
+            emissive={liquidColor || color}
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+      )}
     </group>
   );
 };
