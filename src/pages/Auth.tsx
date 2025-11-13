@@ -26,7 +26,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate("/lab");
+      navigate("/dashboard");
     }
   }, [user, navigate]);
 
@@ -51,7 +51,7 @@ const Auth = () => {
           }
         } else {
           toast.success("Welcome back!");
-          navigate("/lab");
+          navigate("/dashboard");
         }
       } else {
         const { error } = await signUp(email, password, fullName);
@@ -62,8 +62,8 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
-          toast.success("Account created! Welcome to the lab!");
-          navigate("/lab");
+          toast.success("Account created! Welcome!");
+          navigate("/dashboard");
         }
       }
     } catch (error) {
